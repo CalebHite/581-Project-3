@@ -1,3 +1,16 @@
+/*
+ * Name:         App.tsx
+ * Description:  Root component of StyleView. Holds the selected try-on mode and
+ *               whether the camera preview is open, and switches between the
+ *               home and preview screens.
+ * Programmer:   Caleb Hite
+ * Created:      2026-11-09
+ * Revisions:    2026-11-09  Initial version (Sprint 1 reqs. 1, 5, 6, 7).
+ * Preconditions:  Rendered once by Expo as the app entry point.
+ * Postconditions: Exactly one screen is shown. Leaving the preview, or hiding the
+ *                 browser tab, closes the preview so the camera is turned off.
+ * Errors:       None handled here; camera errors are handled in PreviewScreen.
+ */
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
@@ -7,13 +20,15 @@ import { applyNetworkRestriction } from './src/services/privacy';
 import { colors } from './src/theme';
 import { Mode } from './src/types';
 
+// Install the network restriction before anything can touch the camera.
 applyNetworkRestriction();
 
 export default function App() {
   const [mode, setMode] = useState<Mode>('shirt');
   const [previewing, setPreviewing] = useState(false);
 
-  // Stop the camera whenever the tab is hidden.
+  // Block: stop the camera whenever the tab is hidden (web only; native has no
+  // `document`). Closing the preview unmounts the camera.
   useEffect(() => {
     if (typeof document === 'undefined') return;
     const onHide = () => document.hidden && setPreviewing(false);
@@ -21,6 +36,7 @@ export default function App() {
     return () => document.removeEventListener('visibilitychange', onHide);
   }, []);
 
+  // Block: simple two-screen navigation driven by `previewing`.
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar style="light" />
