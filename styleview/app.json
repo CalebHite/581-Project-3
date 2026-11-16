@@ -29,7 +29,8 @@
           "cameraPermission": "StyleView uses the front camera for the live try-on preview. Video never leaves your phone.",
           "recordAudioAndroid": false
         }
-      ]
+      ],
+      "expo-asset"
     ]
   }
 }

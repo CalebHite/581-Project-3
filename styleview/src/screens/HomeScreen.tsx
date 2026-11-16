@@ -5,6 +5,7 @@
  * Programmer:   Caleb Hite
  * Created:      2026-11-09
  * Revisions:    2026-11-09  Initial version (Sprint 1 reqs. 1, 7, 34, 35).
+ *               2026-11-16  Added shirt source card (Sprint 2 reqs. 12, 13, 19).
  * Preconditions:  `mode` is a valid Mode; callbacks are provided by the parent.
  * Postconditions: Calls `onModeChange` with the tapped mode and `onStart` when the
  *                 user taps "Start camera preview". The camera is NOT started here.
@@ -19,9 +20,19 @@ type Props = {
   mode: Mode;
   onModeChange: (m: Mode) => void;
   onStart: () => void;
+  usingCustomShirt: boolean;
+  onUseSample: () => void;
+  onEditShirt: () => void;
 };
 
-export function HomeScreen({ mode, onModeChange, onStart }: Props) {
+export function HomeScreen({
+  mode,
+  onModeChange,
+  onStart,
+  usingCustomShirt,
+  onUseSample,
+  onEditShirt,
+}: Props) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Block: title and tagline */}
@@ -41,6 +52,20 @@ export function HomeScreen({ mode, onModeChange, onStart }: Props) {
           </View>
         ))}
       </View>
+
+      {/* Block: shirt source (sample or the user's own picture), shirt mode only */}
+      {mode === 'shirt' && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Your shirt</Text>
+          <Text style={styles.body}>
+            {usingCustomShirt ? 'Using your own shirt picture.' : 'Using the sample shirt.'}
+          </Text>
+          <Button label="Use my own shirt picture" variant="secondary" onPress={onEditShirt} />
+          {usingCustomShirt && (
+            <Button label="Switch back to sample shirt" variant="secondary" onPress={onUseSample} />
+          )}
+        </View>
+      )}
 
       {/* Block: primary action, hands control to the preview screen */}
       <Button label="Start camera preview" onPress={onStart} />

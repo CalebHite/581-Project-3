@@ -6,6 +6,7 @@
  * Programmer:   Caleb Hite
  * Created:      2026-11-09
  * Revisions:    2026-11-09  Initial version (Sprint 1, req. 6 no upload or save).
+ *               2026-11-16  Allow the backend origin for still shirt pictures (Sprint 2).
  * Preconditions:  Called once at startup, before any camera code runs.
  * Postconditions: On production web builds, a CSP <meta> tag is the first child of
  *                 <head>. On native, in development, or without a DOM, nothing changes.
@@ -13,6 +14,7 @@
  *               because it would block the dev server's hot-reload connection.
  */
 import { Platform } from 'react-native';
+import { API_URL } from '../config';
 
 export function applyNetworkRestriction() {
   // Guard: CSP only applies to production web builds with a document.
@@ -23,9 +25,12 @@ export function applyNetworkRestriction() {
   // for the tracking models planned in later sprints.
   const meta = document.createElement('meta');
   meta.httpEquiv = 'Content-Security-Policy';
+  // connect-src allows the StyleView backend (still pictures only) and data:/blob:
+  // URLs so local pictures can be read; worker-src lets the tracking model run.
   meta.content =
-    "default-src 'self'; connect-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; " +
-    "script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:";
+    `default-src 'self'; connect-src 'self' ${API_URL} data: blob:; img-src 'self' data: blob:; ` +
+    "media-src 'self' blob:; worker-src 'self' blob:; " +
+    `script-src 'self' ${API_URL} 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:`;
 
   // Prepend so the policy is in place before other tags load resources.
   document.head.prepend(meta);
