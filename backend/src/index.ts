@@ -14,4 +14,4 @@ import { createApp } from './app.js';
 const origins = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:8081').split(',').map((s) => s.trim());
 const port = Number(process.env.PORT ?? 3001);
 
-createApp(origins).listen(port, () => console.log(`StyleView backend listening on :${port}`));
+createApp(origins).listen(port, '0.0.0.0', () => console.log(`StyleView backend listening on :${port} (all interfaces)`));

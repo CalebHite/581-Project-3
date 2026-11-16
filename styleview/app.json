@@ -7,7 +7,12 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -26,11 +31,12 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "StyleView uses the front camera for the live try-on preview. Video never leaves your phone.",
+          "cameraPermission": "StyleView uses the camera to capture orbit photos for 3D person scans.",
           "recordAudioAndroid": false
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-sharing"
     ]
   }
 }

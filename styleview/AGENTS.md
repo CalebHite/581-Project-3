@@ -1,41 +1,43 @@
-This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
+# StyleView — agent notes
 
-## Expo has changed — do not trust your training data
+Expo **58** / React Native app for **person orbit capture** and viewing a **USDZ** from the Mac backend.
 
-Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:
+## Architecture
 
-1. Read the major version of the `expo` package in `package.json`.
-2. Fetch the matching versioned docs: `https://docs.expo.dev/versions/v<major>.0.0/`
-3. For anything else, fetch https://docs.expo.dev/llms.txt — an index of all Expo docs with corrections to common LLM misconceptions. Follow its links to the specific page you need; never answer from memory.
+```
+HomeScreen → PersonScanScreen → ScanModelViewerScreen
+                  ↓ scanApi.ts (fetch)
+            backend :3001 /api/scan/*
+                  ↓
+            scan-reconstruct (Swift, macOS only)
+```
+
+- **`src/config.ts`** — `API_URL`: `EXPO_PUBLIC_API_URL`, or LAN host from Expo debugger + port `3001`.
+- **`src/services/scanApi.ts`** — Web uses multipart; **iOS/Android use `/reconstruct/base64`** (not FormData files).
+- **`src/components/OrbitCamera.tsx`** — Native camera; **`.web.tsx`** uses `WebCamera`.
+- **`src/three/UsdzScanCanvas.web.tsx`** — WebGL viewer; native stub in `UsdzScanCanvas.tsx`.
+
+Navigation is **`App.tsx` screen state** — there is no `expo-router` / `src/app/` tree.
 
 ## Commands
 
-Use `bunx` instead of `npx` if the project uses bun (`bun.lock` present).
-
 ```bash
-npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add — resolves SDK-compatible versions
-npx expo start              # start the dev server
-npx expo lint               # lint
-npx tsc --noEmit            # typecheck
-npx expo-doctor             # diagnose dependency and config issues
-npx expo install --fix      # fix incompatible package versions
+cd styleview
+npx expo start          # Expo Go / web
+npx tsc --noEmit        # typecheck (run before finishing tasks)
+npx expo lint
 ```
 
-Run lint and typecheck before declaring any task done.
+Use `npx expo install <pkg>` for new Expo modules (SDK-compatible versions).
 
-## Navigation & Routing
+## Backend coupling
 
-- Use **Expo Router** for all navigation. Routes live in `src/app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `src/app/`.
-- Import `Link`, `router`, and `useLocalSearchParams` from `expo-router`.
-- Docs: https://docs.expo.dev/router/introduction.md
+The app expects a running backend. See repo root `README.md` for `EXPO_PUBLIC_API_URL`, `ALLOWED_ORIGINS`, and building `backend/native`.
 
-## Building with EAS
+## Expo docs
 
-Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
-Docs: https://docs.expo.dev/eas/index.md
+Do not rely on stale training data. Check `expo` version in `package.json`, then https://docs.expo.dev/versions/v58.0.0/ or https://docs.expo.dev/llms.txt .
 
-## Rules
+## Out of scope (removed)
 
-- If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
-- Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
-- Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+Legacy shirt try-on (MediaPipe overlay, multi-angle mannequin, shirt editor, `/api/shirts`) was removed to keep this repo scan-focused.
